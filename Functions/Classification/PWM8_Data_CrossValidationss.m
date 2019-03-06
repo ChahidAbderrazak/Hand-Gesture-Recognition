@@ -46,11 +46,6 @@ for num_fold = 1:C.NumTestSets
     Xp=X_train(y_train==1,:);   Np=size(Xp, 1);
     Xn=X_train(y_train==0,:);   Nn=size(Xn, 1);
     
-    if abs(Np-Nn)>2
-        fprintf('Non balanced testing data\n\n')
-        CV_Status=No_blanced; 
-
-    end
     %% Quantization
     Q_train= mapping_levels(X_train,Level_intervals, Levels);
     Q_test= mapping_levels(X_test,Level_intervals, Levels);
@@ -62,50 +57,35 @@ for num_fold = 1:C.NumTestSets
 %     fPWM_test = Generate_PWM8_features(Q_test,  PWMp_Mer1, PWMn_Mer1);
       
     %% Build the PWM matrices   Mers1 Mer2
-   [PWMp_Mer1,PWMn_Mer1, PWMp_Mer2,PWMn_Mer2]= Generate_PWM8_matrix(Q_train,y_train);
-    fPWM_train= Generate_PWM8_features(Q_train, PWMp_Mer1, PWMn_Mer1,PWMp_Mer2,PWMn_Mer2);       
-    fPWM_test = Generate_PWM8_features(Q_test,  PWMp_Mer1, PWMn_Mer1,PWMp_Mer2,PWMn_Mer2);
+   [PWM3D_Mer1, PWM3D_Mer2]= Generate_PWM3D8_matrix(Q_train,y_train);
+   
+       
+   %% extract the features  
 
-    
-%    [PWMp_Mer1,PWMn_Mer1, PWMp_Mer2,PWMn_Mer2, PWMp_Mer3,PWMn_Mer3]= Generate_PWM8_matrix(Q_train,y_train)
+    fPWM3D8_train= Generate_PWM3D8_features(Q_train, PWM3D_Mer1,PWM3D_Mer2);       
+    fPWM3D8_test = Generate_PWM3D8_features(Q_test,  PWM3D_Mer1,PWM3D_Mer2);
 
+    %% Perform the CV for the kth fold
 
-
-% %% Concatenate all  PWM  Features 
-%     
-% % Training
-% Mp= size(TR_Seq_pos,1);  Mn= size(TR_Seq_neg,1); 
-% y_train = [ones([Mp,1]);zeros([Mn,1])];
-% X_train =  [ Mer1_PWM_features_TR, Mer2_PWM_features_TR, Mer3_PWM_features_TR];
-% 
-% % Testing
-% Mp= size(TS_Seq_pos,1);  Mn= size(TS_Seq_neg,1); 
-% y_test = [ones([Mp,1]);zeros([Mn,1])];
-% X_test =  [ Mer1_PWM_features_TS, Mer2_PWM_features_TS,  Mer3_PWM_features_TS];
-
-%     
-    %% plot PWM features
-%     plot_PWM_features(fPWM_train,fPWM_test,Np)
-
-        [Mdl,Accuracy(num_fold),sensitivity(num_fold),specificity(num_fold),precision(num_fold),gmean(num_fold),f1score(num_fold),AUC(num_fold),ytrue,yfit,score]...
-        =Classify_Data(type_clf, fPWM_train, y_train, fPWM_test, y_test);
+    [Mdl,Accuracy(num_fold),sensitivity(num_fold),specificity(num_fold),precision(num_fold),gmean(num_fold),f1score(num_fold),AUC(num_fold),ytrue,yfit,score]...
+    =Classify_Data(type_clf, fPWM3D8_train, y_train, fPWM3D8_test, y_test);
     
     Mdl_SVM_mPWM=Mdl;
     
 end
 
 %% Average Accuracy 
+%% Average Accuracy 
 Avg_Accuracy = sum(Accuracy)/C.NumTestSets;
-Avg_sensitivity = sum(sensitivity)/C.NumTestSets;
-Avg_specificity = sum(specificity)/C.NumTestSets;
-Avg_precision = sum(precision)/C.NumTestSets;
-Avg_f1score = sum(f1score)/C.NumTestSets;
-Avg_gmean = sum(gmean)/C.NumTestSets;
-Avg_AUC = sum(AUC)/C.NumTestSets;
-
-Accuracy;
+Avg_sensitivity = -1;
+Avg_specificity = -1;
+Avg_precision = -1;
+Avg_f1score =-1;
+Avg_gmean = -1;
+Avg_AUC=-1;;
+Accuracy
 Avg_Accuracy;
-sz_fPWM=size(fPWM_train,2);
+sz_fPWM=size(fPWM3D8_train,2);
 
 
 
@@ -148,44 +128,7 @@ end
 
 
 
-% function [PWMp_Mer1,PWMn_Mer1]=Generate_PWM8_matrix(X_train,y_train)
-function [PWMp_Mer1,PWMn_Mer1, PWMp_Mer2,PWMn_Mer2]=Generate_PWM8_matrix(X_train,y_train)
-% function [PWMp_Mer1,PWMn_Mer1, PWMp_Mer2,PWMn_Mer2, PWMp_Mer3,PWMn_Mer3]=Generate_PWM8_matrix(X_train,y_train)
-
-global Levels
-
-    [TR_Seq_pos,TR_Seq_neg,yptr,yntr]=Split_Features_Pos_Neg(X_train,y_train);
-    [Mp,Np]=size(TR_Seq_pos);      [Mn,Nn]=size(TR_Seq_neg);  
-    
-    M=min(Mp,Mn);
-    TR_Seq_pos=TR_Seq_pos(1:M,:);     TR_Seq_neg=TR_Seq_neg(1:M,:); 
-
-   
-%% Mono-Mers  Position Weight Matrix-BASED FEATURES
-     
-     % Build the PWMs from the Training   
-    [ Mer1_Seq_pos_TR,name_Mer1] = Extract_Miers1(TR_Seq_pos,Levels); 
-    [Mer1_Seq_neg_TR, name_Mer1] = Extract_Miers1(TR_Seq_neg,Levels);
-          
-    [PWMp_Mer1,PWMn_Mer1] = General_PWM_matrices_generatures3D(Mer1_Seq_pos_TR,Mer1_Seq_neg_TR);
-
-
-    %% Di-Mers  Position Weight Matrix-BASED FEATURES
-     % Build the PWMs from the Training   
-    [Mer2_Seq_pos_TR, name_Mer2] = Extract_Miers2(TR_Seq_pos,Levels);
-    [Mer2_Seq_neg_TR, name_Mer2] = Extract_Miers2(TR_Seq_neg,Levels);
-    [PWMp_Mer2,PWMn_Mer2] = General_PWM_matrices_generatures3D(Mer2_Seq_pos_TR,Mer2_Seq_neg_TR);
-
-%     %% 3-Mers Position Weight Matrix-BASED FEATURES
-%      % Build the PWMs from the Training   
-%     [Mer3_Seq_pos_TR, name_Mer3] = Extract_Miers3(TR_Seq_pos,Levels);
-%     [Mer3_Seq_neg_TR, name_Mer3] = Extract_Miers3(TR_Seq_neg,Levels);
-%     [PWMp_Mer3,PWMn_Mer3] = General_PWM_matrices_generatures3D(Mer3_Seq_pos_TR,Mer3_Seq_neg_TR);
-
-    
-end
-
-function fPWM= Generate_PWM8_features(Input_Sequence, PWM_P, PWM_N,PWMp_Mer2,PWMn_Mer2)
+function fPWM= Generate_PWM3D8_features(Input_Sequence, PWM_P, PWM_N,PWMp_Mer2,PWMn_Mer2)
 global Levels
 
     [Mer1_Seq,name_Mer1] = Extract_Miers1(Input_Sequence,Levels);
@@ -220,10 +163,10 @@ function PWM_letters()
 
     N_levels=size(Levels,2);
     % Assign to each level a letter
-    Seq_letter=char([65:90 97:122  char(194:194+N_levels-52) ]); N_letters=size(Seq_letter,2); %   or Seq_letter='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'    
+    Q_letter=char([65:90 97:122  char(194:194+N_levels-52) ]); N_letters=size(Q_letter,2); %   or Q_letter='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'    
     
     for lv=1:N_levels
-    Levels_ABC(lv)=Seq_letter(lv)
+    Levels_ABC(lv)=Q_letter(lv)
     
     end
     

@@ -8,7 +8,7 @@
 % Done: Dec,  2018
 %
 %% ###########################################################################
-warning('off','all'); clearvars op_combinaison
+warning('off','all'); 
 %% ###############   Feature selection using combinaision  ############################
 % This script finds the best combinaison  bases on  SCSA features
 
@@ -44,19 +44,21 @@ if exist(root_folder)~=7; mkdir(root_folder);end
  
 cnt=1;
 Acc_op=0;
-for h=900%[0.1:0.25:1 1.5:2:10 10:10:100 200:100:1000]% max(max(X))*0.01*[2 3 5 10 5 20]%[0.5:0.5:5] % [2:0.2:5]%1%2.13%
+for h=[10 50 100 500 1000 2000 ]%[0.1:0.25:1 1.5:2:10 10:10:100 200:100:1000]% max(max(X))*0.01*[2 3 5 10 5 20]%[0.5:0.5:5] % [2:0.2:5]%1%2.13%
 
     %% Find the optimal combination of the features  SCSA  
-    [F_SCSA_h1, S_SCSA_h1, B_SCSA_h1, P_SCSA_h1,AF_SCSA_h1,SFP_SCSA_h1,SK_features_h1,Nh_all]=SCSA_Transform_features(X,y,h,gm,fs);
+    [F_SCSA_h1, S_SCSA_h1, B_SCSA_h1, P_SCSA_h1,AF_SCSA_h1,SFP_SCSA_h1,SK_features_h1,INVK_features_h1,Nh_all]=SCSA_Transform_features(X,y,h,gm,fs);
 
     % Save the SCSA features
-    data_file=strcat(root_folder,'/SCSA_features',num2str(h),'.mat');
-    
+%     data_file=strcat(root_folder,'/SCSA_features',num2str(h),'.mat');
+    data_file=strcat(root_folder,'/SCSA_features.mat');
+
 %     save(data_file,'F_SCSA_h1', 'S_SCSA_h1', 'B_SCSA_h1', 'P_SCSA_h1', 'AF_SCSA_h1','SFP_SCSA_h1','SK_features_h1','Nh_all','y');
-    save(data_file,'S_SCSA_h1', 'B_SCSA_h1', 'AF_SCSA_h1','SK_features_h1','Nh_all','y');
+%     save(data_file,'S_SCSA_h1', 'B_SCSA_h1','SK_features_h1','Nh_all','INVK_features_h1','y');%'AF_SCSA_h1'
+    save(data_file,'S_SCSA_h1', 'B_SCSA_h1','INVK_features_h1','Nh_all','y');
 
     %% Test all possible conbinaisons of SCSA features and get the optimal combination
-    [SCSA_X, op_comb, op_comb_name, perform_output,Acc,starplus]=Find_the_optimal_feature_combination(data_file,feature_TAG,K,CV_type,type_clf);
+    [SCSA_X, op_comb, op_comb_name, perform_output,Acc]=Find_the_optimal_feature_combination(data_file,feature_TAG,K,CV_type,type_clf);
      %% Add the optimal results to the used h
     SCSA_parameters_op(1,cnt)=h;
     SCSA_parameters_op(2,cnt)=op_comb.Accuracy;
@@ -78,7 +80,9 @@ for h=900%[0.1:0.25:1 1.5:2:10 10:10:100 200:100:1000]% max(max(X))*0.01*[2 3 5 
         
         %{'Dataset','Configuration','size','Method','parameters','CV','Classifier'}
         CV_config_op={noisy_file,num2str(Conf_Elctr), num2str(size(X,1)),feature_type(1:end-1), strcat('h=',num2str(h),', Nh=',num2str(op_comb.Mean_Nh),', ',op_comb.Combination),CV_type,type_clf };
-   
+        %{'Dataset','Configuration','size','L','step','Method','parameters','CV','K','Classifier'}
+        CV_config_op={noisy_file,num2str(Conf_Elctr), num2str(size(X,1)),num2str(L_max),num2str(Frame_Step),feature_type(1:end-1), strcat('h=',num2str(h),', Nh=',num2str(op_comb.Mean_Nh),', ',op_comb.Combination),CV_type,num2str(K),type_clf };
+ 
 
 
         
@@ -91,15 +95,16 @@ scsa_param=strcat('_h',num2str(h_op),'_gm',num2str(gm),'_fs',num2str(fs));
 
  %% save the optimal combinaision
 Acc_op=max(op_combinaison.Accuracy);
-save(strcat('./Classification_results/',feature_type,noisy_file,scsa_param,suff,'_norm',num2str(Normalization),'_',CV_type,'_',type_clf,'_Acc',num2str(Acc_op),'.mat'),'op_combinaison','op_combinaison', 'op_comb_name','K','SCSA_parameters_op',...
-                                                             'scsa_param','gm','fs','List_Features','SCSA_X_op','y','L_max','EN_L','EN_b','bmin','bmax','suff','filename')                                                       
+save(strcat('./Classification_results/',feature_type,scsa_param,noisy_file,suff,'_norm',num2str(Normalization),'_',CV_type,'_',type_clf,'_Acc',num2str(Acc_op),'.mat'),'op_combinaison','op_combinaison', 'op_comb_name','K','SCSA_parameters_op',...
+                                                             'scsa_param','gm','fs','List_Features','SCSA_X_op','y','L_max','noisy_file','suff','filename')                                                       
 
                                                                       
 %% Get the best results of PWM8
    colnames_results={'Vector_Size','Accuracy','Sensitivity','Specificity','Precision','Gmean','F1score','AUC'};
    Comp_performance_Table= array2table(CV_results_op, 'VariableNames',colnames_results);
     
-   colnames_results={'Dataset','Configuration','NbSamples','Method','parameters','CV','Classifier'};
+  
+   colnames_results={'Dataset','Configuration','size','L','step','Method','parameters','CV','K','Classifier'};
    Comp_config_Table= array2table(CV_config_op, 'VariableNames',colnames_results);
     
    % Add the optimal parameters
@@ -108,6 +113,7 @@ save(strcat('./Classification_results/',feature_type,noisy_file,scsa_param,suff,
 % % {'Vector_Size','Accuracy','Sensitivity','Specificity','Precision','Gmean','F1score'};
 % CV_results_op=[sz_fPWM, Accuracy,Avg_sensitivity,Avg_specificity,Avg_precision,Avg_gmean,Avg_f1score];
 % 
-% %{'Dataset','Configuration','size','Method','parameters','CV','Classifier'}
-% CV_config_op={noisy_file,num2str(Conf_Elctr), num2str(size(X,1)),feature_type(1:end-1), strcat('M=',num2str(M),', k=',num2str(k)),CV_type,type_clf };
-                                                                      
+% %{'Dataset','Configuration','size','L','step','Method','parameters','CV','K','Classifier'}
+% CV_config_op={noisy_file,num2str(Conf_Elctr), num2str(size(X,1)),num2str(L_max),num2str(Frame_Step),feature_type(1:end-1), strcat('M=',num2str(M),', k=',num2str(k)),CV_type,num2str(K),type_clf };
+ 
+                                                        

@@ -1,6 +1,6 @@
-%% K-Folds Cross validation using different classifiers
+%% K-Folds Cross validation using mltiple classifiers classifiers
 % type_clf: the classifier { 'LR', 'SVM' }
-function [Accuracy,Avg_Accuracy,Avg_sensitivity,Avg_specificity,Avg_precision,Avg_gmean,Avg_f1score,Avg_AUC]=Data_CrossValidation(X, y,CV_type, K,type_clf)
+function [Accuracy,Avg_Accuracy,Avg_sensitivity,Avg_specificity,Avg_precision,Avg_gmean,Avg_f1score,Avg_AUC]=Data_CrossValidation_Multi_Class(X, y,CV_type, K,type_clf)
 
 if strcmp(CV_type,'LOO')==1
     C = cvpartition(y, 'LeaveOut');
@@ -25,6 +25,8 @@ else
 end
 
 
+%     C = cvpartition(y, 'KFold',K,'Stratify',true);
+
 for num_fold = 1:C.NumTestSets
     trIdx = C.training(num_fold);
     teIdx = C.test(num_fold);
@@ -35,28 +37,26 @@ for num_fold = 1:C.NumTestSets
     
    
     %% Get the positive and negative training samples to build PWM matrices
-    Xp=X_train(y_train==1,:);   Np=size(Xp, 1);
-    Xn=X_train(y_train==0,:);   Nn=size(Xn, 1); 
-    
-        if abs(Np-Nn)>2
-            fprintf('Non balanced testing data\n\n')
-            CV_Status=No_blanced; 
+%     Xp=X_train(y_train==1,:);   Np=size(Xp, 1);
+%     Xn=X_train(y_train==0,:);   Nn=size(Xn, 1); 
+%     
+%         if abs(Np-Nn)>2
+%             fprintf('Non balanced testing data\n\n')
+%             CV_Status=No_blanced; 
+% 
+%         end
 
-        end
-
-        [Mdl,Accuracy(num_fold),sensitivity(num_fold),specificity(num_fold),precision(num_fold),gmean(num_fold),f1score(num_fold),AUC(num_fold),ytrue,yfit]=Classify_Data(type_clf, X_train, y_train, X_test, y_test);
+        [Mdl,Accuracy(num_fold),ytrue,yfit]=Classify_Multi_Class_Data(type_clf, X_train, y_train, X_test, y_test);
  
-        
-        pause(0.3);
 end
  
 Avg_Accuracy = sum(Accuracy)/C.NumTestSets;
-Avg_sensitivity = sum(sensitivity)/C.NumTestSets;
-Avg_specificity = sum(specificity)/C.NumTestSets;
-Avg_precision = sum(precision)/C.NumTestSets;
-Avg_f1score = sum(f1score)/C.NumTestSets;
-Avg_gmean = sum(gmean)/C.NumTestSets;
-Avg_AUC= sum(AUC)/C.NumTestSets;
+Avg_sensitivity = -1;
+Avg_specificity = -1;
+Avg_precision = -1;
+Avg_f1score = -1;
+Avg_gmean = -1;
+Avg_AUC=-1;
 
 Accuracy;
 Avg_Accuracy;

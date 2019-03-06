@@ -1,8 +1,9 @@
 
 %% Add library and sub functions
+addpath ./Functions/Quantization
+addpath ./Functions/Quantization
 addpath ./Functions/PWM8_Functions;
 addpath ./Functions/Process_Input_data;
-addpath ./Functions/MEG_functions;
 addpath ./Functions/PWM2_Functions;
 addpath ./Functions/SCSA_Functions;
 addpath ./Functions/Interpolation_Filter_Data;
