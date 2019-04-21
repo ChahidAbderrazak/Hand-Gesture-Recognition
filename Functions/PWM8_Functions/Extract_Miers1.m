@@ -5,8 +5,6 @@ Input_sequence = double(Input_sequence);
 N_levels=size(levels,2);
 % Assign to each level a letter
 Seq_letter=char([65:90 97:122  char(194:194+N_levels-52) ]); N_letters=size(Seq_letter,2); %   or Seq_letter='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'    
-
-
 % start the scanning
 k=0;
 for N1=1:N_levels

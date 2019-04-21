@@ -1,7 +1,7 @@
 
 %% Add library and sub functions
 addpath ./Functions/Quantization
-addpath ./Functions/Quantization
+addpath ./Functions/mPWM
 addpath ./Functions/PWM8_Functions;
 addpath ./Functions/Process_Input_data;
 addpath ./Functions/PWM2_Functions;

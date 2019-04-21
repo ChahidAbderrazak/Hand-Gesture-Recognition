@@ -1,5 +1,7 @@
 function [Mdl,accuracy,ytrue,yfit,score]= Classify_Multi_Class_Data(type_clf, X_train, y_train, X_test, y_test)
 
+fprintf('\n-->  Data Classification using %d Classes ', max(size(unique(y_test))));
+
 switch type_clf
     case 'LR' 
         [Mdl,accuracy,ytrue,yfit,score]= Multi_Class_LR_classifier(X_train, y_train, X_test, y_test);
@@ -75,16 +77,17 @@ Mdl_Multi_Class = fitcecoc(X_train,y_train,'Coding','onevsall','Learners',tEnsem
 [accuracy0]=Multi_Class_prediction_performance(y_test , yfit);
 
 function [Mdl_Multi_Class,accuracy0,y_test,yfit,scores]=Multi_Class_LR_classifier(X_train, y_train, X_test, y_test)
-
+tic
 t = templateLinear('Learner','logistic');
 Name_Classes=unique(y_train)';
 %% Train an ECOC multiclass model using the default options.
 
 Mdl_Multi_Class = fitcecoc(X_train,y_train,'Learners',t,'FitPosterior',1,'ClassNames',Name_Classes,'Verbose',0);
+time_TR=toc
 
-
-
+tic
 [yfit,scores] = predict(Mdl_Multi_Class,X_test);
+time_TS=toc
 [accuracy0]=Multi_Class_prediction_performance(y_test , yfit);
 
 % %% Compute the ROC curve
@@ -125,6 +128,8 @@ grid on
 function [Mdl_Multi_Class,accuracy0,y_test,yfit,scores]= Multi_Class_SVM_classifier(X_train, y_train, X_test, y_test)
 
 t = templateSVM('Standardize',1,'KernelFunction','gaussian');
+% t = templateSVM('KernelFunction','rbf');%,'Alpha',1,'KernelScale',2);
+
 Name_Classes=unique(y_train)';
 %% Train an ECOC multiclass model using the default options.
 

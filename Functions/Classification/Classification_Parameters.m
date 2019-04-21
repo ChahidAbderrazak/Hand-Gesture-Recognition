@@ -18,9 +18,9 @@
 %% ###########################################################################
 
 %% Define the binary classification
-
-list_Subjets=1;
-list_Trials=1;
+% 
+% list_Subjets=1;
+% list_Trials=1;
 % class_list=1:8;
 % [X,y]=Define_the_Multi_Classes_data(Data,list_Subjets,list_Trials,class_list);
 
@@ -39,8 +39,7 @@ idx=find(y<=8);
 y=y(idx);
 X=X(idx,:);
 
-class_p=-1;
-class_n=-1;
+
 %% Normalization 
 % X0=X;
 % X=X*10^12;
@@ -54,14 +53,37 @@ end
  %% Random sampling the input  data
 %     [X,shuffle_index]=Shuffle_data(X);y=y(shuffle_index);
 
-
+Data_info = strsplit(data_Source,'\');
 %% Display
 
 d_clf='--> Hand Gesture Detection using EMG 2019  :' ;
-d_data1=string(strcat('- CV type:',{''},CV_type,{''},', K=',num2str(K),',  From: ',filename ,',  Dataset: ',noisy_file  ));
+d_data1=string(strcat('- Classification: CV- ',{''},CV_type,{''},', K=',num2str(K) ));
+d_data_info=string(strcat('- Dataset:  Trials: ',filename ,',  Subject: ',Data_info(end-1), ',  Classes: ',Data_info(end)  ));
+
 % d_data2=string(strcat('- Sampling:  L=',num2str(L_max),', Frame Step=',num2str(Frame_Step),', Norm=',num2str(Normalization)));
 
-fprintf('%s \n %s \n \n\n',d_clf,d_data1);
+fprintf('\n######################################################\n ');
+fprintf(' %s \n %s \n %s ',d_clf,d_data1,d_data_info);
+fprintf('\n######################################################\n \n\n');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 %   %% Splitting the data 80/20 (training/testing)  data
 %       [Seq_pos,Seq_neg,yp,yn]=Split_Features_Pos_Neg(X,y);

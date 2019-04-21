@@ -16,6 +16,9 @@ end
 function Idx=Get_the_Class_Samples(list_Subjets,list_Gesture,list_Trials,X_table)
 
 Idx=[];
+if list_Subjets==-1; list_Subjets= unique(X_table.Subject)';end
+if list_Gesture==-1; list_Gesture= unique(X_table.Gesture)';end
+
 for S=list_Subjets
     idxS=find(X_table.Subject==S);
     

@@ -30,7 +30,7 @@ fprintf(' %s\n ',d_data0);
 
 %% Script Starts
     cntm=1;Acc_op=0;cnt_inc=0;
-    
+     
 for M= list_M                % Number of levels
 
     cnt = 1;

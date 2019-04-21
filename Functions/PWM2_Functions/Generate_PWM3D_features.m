@@ -1,4 +1,6 @@
- function fPWM3D_features= Generate_PWM3D_features(Q_input, PWM3Ds)
+ 
+
+function fPWM3D_features= Generate_PWM3D_features(Q_input, PWM3Ds)
  fPWM3D_features=[];
  
  for k=1:size(PWM3Ds,3)
@@ -18,10 +20,6 @@
     fPWM3D_features=[fPWM3D_features fPWM3D];
     
  end
-
-
-
-
 
 d=1;
 end

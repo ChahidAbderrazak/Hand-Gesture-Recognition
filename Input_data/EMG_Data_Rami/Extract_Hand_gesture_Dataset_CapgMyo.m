@@ -25,7 +25,7 @@ mkdir(Results_path)
 Root_folder = uigetdir; Root_folder=strcat(Root_folder,'\');
 
 %% sEMG  records whith spikes
-List_mat_files = dir(strcat(Root_folder ,'\*\*.mat'));
+List_mat_files = dir(strcat(Root_folder ,'**\*.mat'));
 
 Number_trials=0;
 
@@ -71,7 +71,7 @@ noisy_file=Get_the_Classes(Gesture_type);
 % suff=strcat('_Nclss',num2str(max(size(Gesture))),'_L',num2str(L_max),'_FrStep',num2str(Frame_Step));
 suff=strcat('_Nclss',num2str(max(size(Gesture_type))));
 name_record=strcat('Nmtrials_',num2str(Number_trials),'_Size_',num2str(size(X,1)),'_',num2str(size(X,2)),'_Data_',noisy_file,suff);
-path_record=strcat(Results_path,'/Subject',num2str(unique(ID_Subject)),'/',noisy_file(1:end-1));
+path_record=strcat(Results_path,'/Subject',num2str(unique(ID_Subject)'),'/',noisy_file(1:end-1));
 
 
 %% Build the table data
