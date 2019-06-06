@@ -18,6 +18,10 @@ mPWM_structure.Classes=Classes;
 mPWM_structure.Levels=Levels;
 mPWM_structure.Level_intervals=Level_intervals;
 
+if size(Classes,2)==1
+  Classes=Classes';
+end
+
 if Nl== Nq
 
     cnt=1;

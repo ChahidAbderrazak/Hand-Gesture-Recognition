@@ -13,7 +13,7 @@ global y h filename  root_folder
 
 % Data sources
 data_Source='./Input_data/Extracted_gesture_data/';                     % Source 
-path_Classification='/QuPWM_select_feature/';             % Destination 
+path_Classification='/QuPWM_ALL_feature/';             % Destination 
 project_folder=pwd;project_folder = strsplit(project_folder,'\'); 
 path_Classification=char(strcat('R:/chahida/Projects-Results/',char(project_folder(end)),path_Classification));
 

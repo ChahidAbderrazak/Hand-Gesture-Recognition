@@ -1,12 +1,14 @@
 %% Generates  the different mPWMS features using the PWM matrices of <mPWM_structure>
-function  [mPWM_features]=Generate_mPWMs_features(mPWM_structure, Q_sequences)  
+function  [mPWM_features]=Generate_mPWM_features(mPWM_structure, Q_sequences)  
             
 fprintf('\n-->  Generate  mPWM-based  features ')
 
 Q_Levels=unique(Q_sequences)';
 
 mfPWM=[];   fPWM2=[];   fPWM=[];
-if norm(Q_Levels- mPWM_structure.Levels)==0
+
+save('log.mat')
+if norm(floor(Q_Levels)- floor(mPWM_structure.Levels))==0
     cnt=1;
  
         for C=mPWM_structure.Classes %% loops over the classes features
@@ -20,14 +22,14 @@ if norm(Q_Levels- mPWM_structure.Levels)==0
          end
 else
     
-        Levels
+        
         mPWM_structure.Levels
         fprintf('The number of  Levels in %d are different then the levels existing in  Q_sequences %d \n',Levels, mPWM_structure.Levels)
         dome
         
 end
     
-    
+
 end
 
 
@@ -41,9 +43,13 @@ function [PWM_features]= Generate_mPWM_features_per_Class(mPWM_structure, Q_inpu
 % % [mPWM_C]=normalize_array_colmnwise(mPWM_C);
 
 %% Get teh PWM for the Class <C>
-eval(['mPWM_C=mPWM_structure.C',num2str(C),';']);
 
+save('log2.mat')
+fprintf('w0');
+eval(['mPWM_C=mPWM_structure.C',num2str(C),';']);
+fprintf('w0');
 for k=1:mPWM_structure.m
+    fprintf('w%d',k);
 eval(['motifs',num2str(k),'=mPWM_structure.C',num2str(C),'.motif',num2str(k),' ;']);
 eval(['Mm',num2str(k),'=max(size(motifs',num2str(k),')) ;']);
 eval(['m',num2str(k),'PWM=mPWM_structure.C',num2str(C),'.m',num2str(k),'PWM ;']);
@@ -134,13 +140,8 @@ end
 %% Save the mPEMS features seperatly 
 for k=1:mPWM_structure.m
 eval(['PWM_features.m',num2str(k),'fPWM=m',num2str(k),'fPWM;']);
-eval(['PWM_features.m',num2str(k),'fPWM_size=size(m',num2str(k),'fPWM,2);']);
-
 eval(['PWM_features.p',num2str(k),'fPWM=p',num2str(k),'fPWM;']);
-eval(['PWM_features.p',num2str(k),'fPWM_size=size(p',num2str(k),'fPWM,2);']);
-
 eval(['PWM_features.m',num2str(k),'fPWM1=sum(m',num2str(k),'fPWM,2);']);
-eval(['PWM_features.m',num2str(k),'fPWM1_size=size(sum(m',num2str(k),'fPWM,2),2);']);
 
 end
      

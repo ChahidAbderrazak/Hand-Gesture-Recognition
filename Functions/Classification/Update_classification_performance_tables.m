@@ -10,7 +10,7 @@
    colnames_results={'Type_mPWM_Feature','Vector_Size','Accuracy','Sensitivity','Specificity','Precision','Gmean','F1score','AUC'};
    Comp_performance_Table= array2table(CV_results_op, 'VariableNames',colnames_results);
     
-   colnames_results={'Dataset','Subjects','Trials','Gestures','Dataset_size','Method','parameters','CV','K','Classifier','Timing'};
+   colnames_results={'epoch','Dataset','Subjects','Trials','Gestures','Dataset_size','Method','parameters','CV','K','Classifier','Timing'};
    Comp_config_Table= array2table(CV_config_op, 'VariableNames',colnames_results);
     
    % Add the optimal parameters

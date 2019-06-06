@@ -24,8 +24,8 @@ Timing
             % {'Vector_Size','Accuracy','Sensitivity','Specificity','Precision','Gmean','F1score'};
             CV_results_op=[mPWM_features,sz_fPWM, Accuracy,Avg_sensitivity,Avg_specificity,Avg_precision,Avg_gmean,Avg_f1score,Avg_AUC];
             
-            %{'Dataset','Gestures','size','Method','parameters','CV','K','Classifier'}
-            CV_config_op={noisy_file, Subjects,Trials,List_classes, num2str(size(X,1)),mPWM_type(1:end-1), strcat('M=',num2str(M),', k=',num2str(k)),CV_type,num2str(K),type_clf, Timing };
+            %{'epoch','Dataset','Gestures','size','Method','parameters','CV','K','Classifier'}
+            CV_config_op={epoch,noisy_file, Subjects,Trials,List_classes, num2str(size(X,1)),mPWM_type(1:end-1), strcat('M=',num2str(M),', k=',num2str(k)),CV_type,num2str(K),type_clf, Timing };
 
         end
     
