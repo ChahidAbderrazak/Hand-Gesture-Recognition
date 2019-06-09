@@ -1,55 +1,10 @@
-% %     fPWM_train=[]; fPWM_test=[]; mPWM_type='';
-% %     for m=1:mPWM_structure.m
-% %         for C=unique([y_train;y_test])'
-% %             eval(strcat('fPWM_train=[fPWM_train mPWM_feature_train.C',num2str(C),'.m',num2str(m),'fPWM];'));
-% %             eval(strcat('fPWM_test=[fPWM_test mPWM_feature_test.C',num2str(C),'.m',num2str(m),'fPWM];'));
-% %             mPWM_type=strcat(mPWM_type,',m',num2str(m),'fPWM');
-% %         end
-% %     end
+clc; clear all;  
+close all ;format shortG;  addpath ./Functions ;Include_function ;%log_html_file
 
+load('example_QuPWM_features.mat')
 
-
-name_features = fieldnames(mPWM_feature_train.C1);
-   
-mPWM_features=0;
-Z=max(size(name_features));
-combined_features='';
-%% list the existing feaetures
-Existing_features = 1:Z;
-%% ###########  Try all PWM-based features  combinaisons with  ###########################
-
-for sz_combinaison=3%1:Z
-
-    new_combinaison = nchoosek(Existing_features,uint16(sz_combinaison));
-
-    %% Build the features matrix for classification 
-    for comb=1:size(new_combinaison,1)
-
-        mPWM_features=comb;
-        Selected_features=new_combinaison(comb,:); %Existing_features; % 
-
-        [fPWM_train,mPWM_type]=Get_Slected_PWM_features(mPWM_feature_train,name_features,Selected_features);
-        [fPWM_test,mPWM_type]=Get_Slected_PWM_features(mPWM_feature_test,name_features,Selected_features);
-
-        
-        
-       
-        
-%% ###########  Perform the MultiLabels classification   ###########################
-      tic
-         eval(['[Mdl.LR',num2str(mPWM_features),',Accuracy_LR(mPWM_features),ytrue,yfit_LR1]=Classify_Multi_Class_Data(type_clf, fPWM_train, y_train, fPWM_test, y_test);'])
-     
-    %% $$$$$     Get the higher accuracy model     $$$$$
-    sz_fPWM=size(fPWM_train,2);
-    exec_time=toc;
-    Accuracy=Accuracy_LR(mPWM_features);
-    Get_optimal_MC_mPWMModel_Accuracy
-        
-    end
-    
-end
-
-
+type_clf='LR';
+Selected_features_op=Scan_optimal_QuPWM_features(type_clf, mPWM_feature_train, y_train, mPWM_feature_test, y_test)
 
 % %  close all
 % % 

@@ -11,7 +11,6 @@
         cnt_inc=cnt_inc+1;Output_results(cnt_inc,:)=[mPWM_features, M,mu,sigma,k,resolution,sz_fPWM,Accuracy, exec_time];
         Classifier{cnt_inc}=type_clf;
         Feature_type{cnt_inc}=mPWM_type(1:end-1);
-Timing
         
         %%  compute parameters 
         Avg_sensitivity=-1; Avg_specificity=-1; Avg_precision=-1; Avg_gmean=-1; Avg_f1score=-1; Avg_AUC=-1;

@@ -10,7 +10,11 @@ from sklearn.metrics import *
 from sklearn import datasets
 import timeit
 
-
+#from __future__ import division
+import matlab.engine
+import io
+out = io.StringIO()
+err = io.StringIO()
 #%%
 
 
@@ -19,19 +23,18 @@ def browse_file():
     from tkinter import filedialog
     import functools
     import operator
+    import os
     # hide root window
     root = tkinter.Tk()
     root.withdraw()
     root.attributes("-topmost", True)
-
-    print('Please choose a mat file')
 
     fname = filedialog.askopenfilename( initialdir= "./" ,title='Please select a *mat file')
 
     if fname[-3:]!='mat':
         print('Please choose a mat file not '+fname[-3:] +' file')
 
-    return  functools.reduce(operator.add, (fname))
+    return  functools.reduce(operator.add, (fname)),os.path.basename(fname)
 
 def Run_Training_test_Classification(clf, name, X_train, y_train,X_test):
 
@@ -236,3 +239,41 @@ def Tuning_hyper_parameters(clf_model, tuned_parameters, CV,X_train, y_train):
         print(clf.best_params_)
         print()
         return  clf.best_params_, clf
+
+
+
+def Classification_Train_Test(names, classifiers, X_train, y_train, X_test, y_test ):
+    score=[]
+    for name, clf in zip(names, classifiers):
+        print('Train/Test Split using:',name)
+        #% model training
+        start_time = timeit.default_timer()
+        clf.fit(X_train, y_train)
+        time_train = timeit.default_timer() - start_time
+
+        #% model testing
+        start_time = timeit.default_timer()
+        y_predicted= clf.predict(X_test)
+        time_test = timeit.default_timer() - start_time
+
+        #% model testing one sample
+        start_time = timeit.default_timer()
+        y1= clf.predict(X_test[0:1])
+        time_test1 = timeit.default_timer() - start_time
+
+        #% model evaluation
+        accuracy,sensitivity, specificity, precision, recall, f1, AUC=Get_model_performnace(y_test,y_predicted)
+
+
+        score.append(list([accuracy, sensitivity, specificity,precision, recall, f1, AUC, time_train, time_test]))
+        print('accuracy=',accuracy, 'sensitivity=',sensitivity,'specificity=', specificity,'sensitivity=',sensitivity,
+              'precision=', precision , 'recall=', recall , 'F1-Score=', f1 , 'AUC=',AUC,'time_train=', time_train, 's time_test=', time_test , 's')
+
+
+        # ROC
+    #    fpr, tpr, AUC=Get_ROC_Curve(y_test,y_predicted)
+
+    Mdl_score = pd.DataFrame(np.asarray(score).T, columns=names)
+    Mdl_score['Scores']=   list(['Accuracy','Sensitivity', 'Specificity','Precision', 'Recall','F1-score', 'ROC-AUC','time_train(s)','time_test(s)'])
+    print('Train/Test Split  results :\n\n',Mdl_score )
+    return Mdl_score

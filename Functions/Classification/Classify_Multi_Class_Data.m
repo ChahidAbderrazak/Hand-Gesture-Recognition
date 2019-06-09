@@ -82,11 +82,11 @@ t = templateLinear('Learner','logistic');
 Name_Classes=unique(y_train)';
 %% Train an ECOC multiclass model using the default options.
 Mdl_Multi_Class = fitcecoc(X_train,y_train,'Learners',t,'FitPosterior',1,'ClassNames',Name_Classes,'Verbose',0);
-time_TR=toc
+time_TR=toc;
 
-tic
+tic;
 [yfit,scores] = predict(Mdl_Multi_Class,X_test);
-time_TS=toc
+time_TS=toc;
 [accuracy0]=Multi_Class_prediction_performance(y_test , yfit);
 
 % %% Compute the ROC curve

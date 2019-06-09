@@ -31,7 +31,7 @@ for list_Subjets=1%[1:4]
         
         %% Random choice of Training and testing trials
         Trials=unique(Data.Trial);Ntrials=max(size(Trials));
-        Trial_shuffle=randperm(Ntrials)
+        Trial_shuffle=randperm(Ntrials);
 
 %         list_Trials_TR=Trial_shuffle(1:Ntrials/2);        %%  Training samples are the odd trails 
 %         list_Trials_TS=Trial_shuffle(1+Ntrials/2:end);       %%  Testing samples are the even trails 
@@ -61,7 +61,7 @@ for list_Subjets=1%[1:4]
         [X_train,y_train, X_test,y_test]=Split_Training_Testing_sets(Data,list_Subjets,list_Gesture,list_Trials_TR,list_Trials_TS);
 
         %% Get the statistical properties of the data
-        [Data_pd,mu,sigma]=Split_Multi_classes_samples(X,y);
+        [mu,sigma]=Split_Multi_classes_samples(X,y);
 
         %% QuPWM-based features 
 

@@ -55,7 +55,7 @@ from Python_lib.Feature_Generation import *
 save_excel=1
 
 # PWM-based parameters
-m=3                                         # kmers order
+m=4                                         # kmers order
 list_M=[i for i in range(6,7,2)]            # quantzation number of intervals
 list_k=1.2#[i for i in range(0.8,1.3,0.1)]  # Quantizatin resolution
 feature_type='MC_mPWM_'
@@ -77,6 +77,7 @@ classifiers = [LogisticRegression(),#(random_state=0, solver='lbfgs',multi_class
 
 
 #%%  ---------------------   CLASSES + ENTRIES PREPPARATION   --------------------------
+
 # load mat file where the data are saved
 filepath = browse_file()
 
@@ -105,6 +106,7 @@ score=list();
 # Get random training/testing split
 #Trial_split=list(np.random.permutation(trials_labels).reshape(( 2, len(trials_labels)//2)))
 Trial_split=[[1,3,5,7,9],[2,4,6,8,10]]
+
 Trial_TR=list();Trial_TS=list();
 for gesture in list_Gestures:
     Trial_TR.extend(list([ i for i in range(len(Gesture)) if Gesture[i]==gesture and Subject[i] in list_Subjets and Trial[i] in  Trial_split[0]]))
@@ -145,8 +147,8 @@ k=1.2#[i for i in range(0.8,1.3,0.1)]  # Quantizatin resolution
 #  Quatization
 #mu,sigma=np.mean(X_train), np.std(X_train)                       # Get    normal Distribution N(mu, sigma)
 mu,sigma=eng.Split_Multi_classes_samples(X_train_mat,y_train_mat,nargout=2,stdout=out,stderr=err);
-
-Levels, Level_intervals=Set_levels_Sigma(k,M,mu,sigma); Level_intervals_mat=matlab.double(np.asarray(Level_intervals).tolist());
+Levels, Level_intervals=Set_levels_Sigma_py(k,M,mu,sigma);
+Level_intervals_mat=matlab.double(np.asarray(Level_intervals).tolist());
 
 Q_train= mapping_levels(X_train,Level_intervals, Levels);Q_train_mat=matlab.double(Q_train.tolist());
 Q_test = mapping_levels(X_test, Level_intervals, Levels);Q_test_mat=matlab.double(Q_test.tolist())
@@ -179,17 +181,17 @@ selected_feature=[0,1,2]#[1,5,8]
 
 for C in name_classes:
     for f in name_features:
-         f_new=mPWM_feature_train[C][f]
+         f_new0=mPWM_feature_train[C][f]
          try:
-             Xf_train=np.concatenate((Xf_train,f_new), axis=1)
+             Xf_train=np.concatenate((Xf_train,f_new0), axis=1)
          except NameError:
-             Xf_train=np.asarray(f_new)
+             Xf_train=np.asarray(f_new0)
 
-         f_new=mPWM_feature_test[C][f]
+         f_new1=mPWM_feature_test[C][f]
          try:
-             Xf_test=np.concatenate((Xf_test,f_new), axis=1)
+             Xf_test=np.concatenate((Xf_test,f_new1), axis=1)
          except NameError:
-             Xf_test=np.asarray(f_new)
+             Xf_test=np.asarray(f_new1)
 
 
 
@@ -230,8 +232,8 @@ print('Train/Test Split  results :\n\n',Clf_score )
 
 
 #%% ---------------------------- Save results ----------------------------
-if save_excel==1:
 
+if save_excel==1:
     path='./Results'
     if not os.path.exists(path):
         # Create target Directory
@@ -242,7 +244,6 @@ if save_excel==1:
     if not os.path.exists(path):
         # Create target Directory
         os.mkdir(path)
-
     Clf_score.to_csv(path+'/train_test_'+ feature_type+ mat_filename[:-4]+'.csv', sep=',')
 
 
