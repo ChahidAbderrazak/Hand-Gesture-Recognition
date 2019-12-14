@@ -14,3 +14,6 @@ addpath ./Functions/Display;
 addpath ./Functions/Display/save_figures;
 addpath ./Functions/Display/matrix2latex;
 addpath ./Functions/Display/matrix2excel;
+
+
+addpath ./Functions/Rami2019

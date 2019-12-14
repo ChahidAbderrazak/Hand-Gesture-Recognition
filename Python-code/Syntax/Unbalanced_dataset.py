@@ -12,20 +12,30 @@ import pandas as pd
 import torch
 import torch.nn as nn
 
-from Python_lib.Shared_Functions import *
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
 #%% ##################################################################################################
 # input parameters
 
+# Remove 'id' and 'target' columns
+labels = df_train.columns[2:]
 
+X = df_train[labels]
+y = df_train['target']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+
+model = XGBClassifier()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy: %.2f%%" % (accuracy * 100.0))
 #%%   ----------------------  PART I  -------------------------
 #% Split the test into sentences
-target_count0=np.sum(y_train==0)
-target_count1=np.sum(y_train==1)
 
-print('Class 0:', target_count0)
-print('Class 1:', target_count1)
-print('Proportion:', round(target_count0 / target_count1, 2), ': 1')
+
 
 #%% Test Script CELL ################################################################################
 print('The END.')

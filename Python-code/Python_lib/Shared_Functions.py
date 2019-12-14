@@ -58,6 +58,58 @@ def Run_Training_test_Classification(clf, name, X_train, y_train,X_test):
 
     return y_predicted, time_train, time_test
 
+def Feature_selection_using_Tree(X,y,features0):
+    from sklearn.ensemble import ExtraTreesClassifier
+
+    print(features0,'000000')
+
+    # Build a forest and compute the feature importances
+    forest = ExtraTreesClassifier(n_estimators=250,
+                                  random_state=0)
+
+    forest.fit(X, y)
+    importances = forest.feature_importances_
+    std = np.std([tree.feature_importances_ for tree in forest.estimators_],
+                 axis=0)
+    indices = np.argsort(importances)[::-1]
+
+    # Print the feature ranking
+    print("Feature ranking:")
+
+    for f in range(X.shape[1]):
+        print("%d. feature %d (%f)" % (f + 1, indices[f], importances[indices[f]]))
+
+    # Plot the feature importances of the fores
+
+#    features_sel=[];
+#    for k in indices:
+#        print(k, '--',features0[k])
+#        features_sel.append(features0[k])
+#
+#    print(indices)
+#    print(features_sel)
+#    print(features0)
+
+    plt.figure()
+    plt.title("Feature importances")
+    plt.bar(range(X.shape[1]), importances[indices],
+           color="r", yerr=std[indices], align="center")
+#    plt.xticks(range(X.shape[1]),indices)
+#    plt.xticks(range(X.shape[1]),indices)
+    plt.xticks(range(X.shape[1]), features_sel, rotation=45)
+    plt.xlim([-1, X.shape[1]])
+    plt.show()
+
+    #% feature selection using threshold
+    return  indices,importances
+
+def str_list_to_int_list(str_list):
+    n = 0
+    while n < len(str_list):
+        str_list[n] = int(str_list[n])
+        n += 1
+    return(str_list)
+
 
 def plot_something():
         #https://matplotlib.org/users/pyplot_tutorial.html
@@ -142,7 +194,7 @@ def Get_model_performnace(y,y_predicted):
 
 
 
-    print ('Accuracy : ', accuracy)
+#    print ('Accuracy : ', accuracy)
 
     return accuracy, sensitivity, specificity, precision, recall, f1, AUC #=Get_model_performnace(y_test,y_predicted)
 
@@ -244,8 +296,9 @@ def Tuning_hyper_parameters(clf_model, tuned_parameters, CV,X_train, y_train):
 
 def Classification_Train_Test(names, classifiers, X_train, y_train, X_test, y_test ):
     score=[]
+    acc_op=0
     for name, clf in zip(names, classifiers):
-        print('Train/Test Split using:',name)
+#        print('Train/Test Split using:',name)
         #% model training
         start_time = timeit.default_timer()
         clf.fit(X_train, y_train)
@@ -266,8 +319,11 @@ def Classification_Train_Test(names, classifiers, X_train, y_train, X_test, y_te
 
 
         score.append(list([accuracy, sensitivity, specificity,precision, recall, f1, AUC, time_train, time_test]))
-        print('accuracy=',accuracy, 'sensitivity=',sensitivity,'specificity=', specificity,'sensitivity=',sensitivity,
-              'precision=', precision , 'recall=', recall , 'F1-Score=', f1 , 'AUC=',AUC,'time_train=', time_train, 's time_test=', time_test , 's')
+#        print('accuracy=',accuracy, 'sensitivity=',sensitivity,'specificity=', specificity,'sensitivity=',sensitivity,
+#              'precision=', precision , 'recall=', recall , 'F1-Score=', f1 , 'AUC=',AUC,'time_train=', time_train, 's time_test=', time_test , 's')
+        if acc_op<accuracy:
+            acc_op=accuracy
+            clf_op=name
 
 
         # ROC
@@ -275,5 +331,9 @@ def Classification_Train_Test(names, classifiers, X_train, y_train, X_test, y_te
 
     Mdl_score = pd.DataFrame(np.asarray(score).T, columns=names)
     Mdl_score['Scores']=   list(['Accuracy','Sensitivity', 'Specificity','Precision', 'Recall','F1-score', 'ROC-AUC','time_train(s)','time_test(s)'])
-    print('Train/Test Split  results :\n\n',Mdl_score )
+
+#    print('Train/Test Split  results :\n\n',Mdl_score )
+    print('\nOptimal classifier :',clf_op , ', Accuracy  :',acc_op,'\n\n')
+
+
     return Mdl_score

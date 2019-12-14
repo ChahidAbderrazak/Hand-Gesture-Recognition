@@ -108,7 +108,7 @@ for list_Subjets=1%[1:4]
     writetable(perform_output,strcat(path_Classification,feature_type,pwm_param,noisy_file,suff,'_Acc',num2str(Acc_op),'.xlsx'))
 
     % mat file sheet
-    save(strcat(path_Classification,feature_type,pwm_param,noisy_file,suff,'_Acc',num2str(Acc_op),'.mat'),'pwm_param','feature_TAG','perform_output', 'noisy_file','*_all','list_*','*pd','mu','sigma',...
+    save(strcat(path_Classification,feature_type,pwm_param,noisy_file,suff,'_Acc',num2str(Acc_op),'.mat'),'pwm_param','feature_TAG','perform_output', 'noisy_file','*_all','list_*','mu','sigma',...
                                                                           'perform_output','Comp_results_Table','PWM_op_results','X','y','suff','filename')                                                                                                                    
     winopen(path_Classification);
     fprintf('\n#######  The experiment %s of  Subject  %s  classification is done succesfully ######\n\n', noisy_file,list_Subjets)

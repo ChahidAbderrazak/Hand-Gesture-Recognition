@@ -52,36 +52,51 @@ from Python_lib.Shared_Functions import *
 from Python_lib.Feature_Generation import *
 
 #%%##################################################################################################
-# results destination
-save_excel=1
+# input parameters
+save_excel=0;
+project_name='MEG_QuPWM'
+mat_filename='Blcd_Patients_9Datasize_531885_2340_EA001EA002EA003EA004EA005EA006EA007EA008EA009_CHs26_L90_Step2'#'Patients8_L90_balanced'#'dataset_MEG90.mat' # QUPWM features
 
 # PWM-based parameters
 list_M=[i for i in range(6,7,2)]            # quantzation number of intervals
 list_k=1.2#[i for i in range(0.8,1.3,0.1)]  # Quantizatin resolution
-feature_type='MC_mPWM_'
+feature_type='mPWM_'
 
-# experiemnt  parameters
-list_Subjets=[i for i in range(1,5)]
-list_Gestures=[i for i in range(1,9)]        # The eight hand gestures classes
-Trial_split=[[1,3,5,7,9],[2,4,6,8,10]]       #Trial_split=list(np.random.permutation(trials_labels).reshape(( 2, len(trials_labels)//2)))
 
-# The classifier pipeline
-names = ["Logistic Regression",
-         "Nearest Neighbors", "Linear SVM","RBF SVM",
-         "Decision Tree", "Random Forest",
-         "Neural Net", "AdaBoost","Naive Bayes"]
 
-classifiers = [LogisticRegression(),#(random_state=0, solver='lbfgs',multi_class='multinomial'),
-    KNeighborsClassifier(3), SVC(kernel="linear", C=0.025),SVC(gamma=2, C=1),
-    DecisionTreeClassifier(max_depth=5),RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
-    MLPClassifier(alpha=1),AdaBoostClassifier(),GaussianNB()]
+#The classifier pipeline
+names = ["Logistic Regression","Nearest Neighbors", "Linear SVM",
+        "RBF SVM", "Decision Tree", "Random Forest", "Neural Net",
+        "Naive Bayes", "Quadratic Discriminant Analysis"]
 
-names,classifiers = ["Logistic Regression"],[LogisticRegression()]
+classifiers = [LogisticRegression(), KNeighborsClassifier(3), SVC(kernel="linear", C=0.025),
+    SVC(gamma=2, C=2),
+    DecisionTreeClassifier(max_depth=5),
+    RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
+    RandomForestClassifier(max_depth=7, n_estimators=10, max_features=1),
+    MLPClassifier(alpha=1),
+    GaussianNB(),
+    QuadraticDiscriminantAnalysis()]
 
-#%%  ---------------------   CLASSES + ENTRIES PREPPARATION   --------------------------
-X, Gesture,Subject, Trial, X_train, y_train, X_test, y_test, mat_filename=Load_split_dataset(list_Subjets,list_Gestures,Trial_split)
+#names,classifiers = ["Logistic Regression"],[LogisticRegression()]
 
-Mdl0_raw=Classification_Train_Test(names, classifiers, X_train, y_train, X_test, y_test)
+##################################################################################################
+#%% The classifier pipelinLoad mat files
+#loaded_mat_file = scipy.io.loadmat('./mat/'+mat_filename)
+loaded_mat_file = scipy.io.loadmat('R:/chahida/Projects-Dataset/KFMC/Extracted_data/Patients/EA001EA002EA003EA004EA005EA006EA007EA008EA009/Balanced/'+mat_filename)
+
+X = loaded_mat_file['X']
+y = loaded_mat_file['y'].ravel()
+y_patient = loaded_mat_file['y_patient'].ravel()
+Frame_Step = loaded_mat_file['Frame_Step'].ravel()
+
+#%%
+#X=X - np.min(X)
+#X=X/np.max(X)
+#X = StandardScaler().fit_transform(X)
+X_train, X_test, y_train, y_test =  train_test_split(X, y, test_size=.2, random_state=42)
+
+Mdl0_raw_data=Classification_Train_Test(names, classifiers, X_train, y_train, X_test, y_test )
 
 #%%  ---------------------    METHOD II: matlab functions   --------------------------
 M=6#[i for i in range(6,7,2)]            # quantzation number of intervals
@@ -92,7 +107,7 @@ Q_test,mu,sigma,Level_intervals=Quantization( k,M, X_test,mu,sigma)             
 
 #%%  ---------------------   QuPMWM-based FEATURE GENERATION   --------------------------
 #% Build the nPWM matrices for different kMers
-m=1                                         # kmers order
+m=1                                          # kmers order
 mPWM_structure=Build_QuPWM_matrices(m, Q_train, y_train,Level_intervals)
 
 #%% Generate the Training/Testing features
@@ -102,37 +117,37 @@ mPWM_feature_test =Generate_QuPWM_features(mPWM_structure, Q_test)
 
 #%%  manually Select fPWM features
 
-selected_feature=[0,1,2]#[1,5,8]#
+selected_feature=-1#[0,1,2]#[1,5,8]#-1#
 
-Xf_train, QuPWM_names, QuPWM_sizes,sel_feat=QuPWM_feature_selection(mPWM_feature_train,selected_feature)
-Xf_test, QuPWM_names, QuPWM_sizes,sel_feat=QuPWM_feature_selection(mPWM_feature_test,selected_feature);
+Xf_train, QuPWM_names, QuPWM_sizes,sel_feat = QuPWM_feature_selection(mPWM_feature_train,selected_feature)
+Xf_test,  QuPWM_names, QuPWM_sizes,sel_feat = QuPWM_feature_selection(mPWM_feature_test,selected_feature);
 
 Mdl1_score_select=Classification_Train_Test(names, classifiers, Xf_train, y_train, Xf_test, y_test )
 
-##%% optimally select the feature
-#
-#selected_feature_op,Xf_train_op,Xf_test_op,acc_max= Feature_selection_using_Scanning_kMers(mPWM_feature_train,y_train, mPWM_feature_test, y_test, names, classifiers)
-#
-#
-#from itertools import combinations
-#
-#list_QuPWM_types=[i for i in range(6,12)]
-#acc_max=0
-#for k in range(3,6):
-#    for selected_feature in selected_feature:#combinations(list_QuPWM_types , k) :
-#        print(list(selected_feature))
-##        selected_feature=[1,5,8]# [0,1,2]#
-#        Xf_train=QuPWM_feature_selection(mPWM_feature_train,selected_feature);
-#        Xf_test =QuPWM_feature_selection(mPWM_feature_test, selected_feature);
-#        Mdl_score_op=Classification_Train_Test(names, classifiers, Xf_train, y_train, Xf_test, y_test )
-#        acc=Mdl2_score['Logistic Regression'][0]
-#        print('Acc_max=',acc_max,'---  Acc=',acc)
-#
-#        if acc>acc_max :
-#            selected_feature_op=selected_feature
-#            Xf_train_op=Xf_train
-#            Xf_test_op=Xf_test
-#            acc_max=acc
+#%% optimally select the feature
+
+selected_feature_op,Xf_train_op,Xf_test_op,acc_max= Feature_selection_using_Scanning_kMers(mPWM_feature_train,y_train, mPWM_feature_test, y_test, names, classifiers)
+
+
+from itertools import combinations
+
+list_QuPWM_types=[i for i in range(6,12)]
+acc_max=0
+for k in range(3,6):
+    for selected_feature in selected_feature:#combinations(list_QuPWM_types , k) :
+        print(list(selected_feature))
+#        selected_feature=[1,5,8]# [0,1,2]#
+        Xf_train=QuPWM_feature_selection(mPWM_feature_train,selected_feature);
+        Xf_test =QuPWM_feature_selection(mPWM_feature_test, selected_feature);
+        Mdl_score_op=Classification_Train_Test(names, classifiers, Xf_train, y_train, Xf_test, y_test )
+        acc=Mdl2_score['Logistic Regression'][0]
+        print('Acc_max=',acc_max,'---  Acc=',acc)
+
+        if acc>acc_max :
+            selected_feature_op=selected_feature
+            Xf_train_op=Xf_train
+            Xf_test_op=Xf_test
+            acc_max=acc
 
 
 
