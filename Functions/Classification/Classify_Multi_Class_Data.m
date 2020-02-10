@@ -86,6 +86,9 @@ time_TR=toc;
 
 tic;
 [yfit,scores] = predict(Mdl_Multi_Class,X_test);
+if size(yfit,1)~=size(y_test,1)
+    yfit=yfit';
+end
 time_TS=toc;
 [accuracy0]=Multi_Class_prediction_performance(y_test , yfit);
 

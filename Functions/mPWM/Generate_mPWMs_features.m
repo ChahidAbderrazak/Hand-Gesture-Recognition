@@ -9,7 +9,7 @@ mfPWM=[];   fPWM2=[];   fPWM=[];
 if norm(Q_Levels- mPWM_structure.Levels)==0
     cnt=1;
  
-        for C=mPWM_structure.Classes %% loops over the classes features
+        for C=mPWM_structure.Classes' %% loops over the classes features
 
              fprintf('\n\t-->  Generate  mPWM-based  features up to m%dPWM_C%d \t',mPWM_structure.m,C)
              tic

@@ -53,7 +53,7 @@ end
  %% Random sampling the input  data
 %     [X,shuffle_index]=Shuffle_data(X);y=y(shuffle_index);
 
-Data_info = strsplit(data_Source,'\');
+Data_info = strsplit(data_Source,sep);
 %% Display
 
 d_clf='--> Hand Gesture Detection using EMG 2019  :' ;
