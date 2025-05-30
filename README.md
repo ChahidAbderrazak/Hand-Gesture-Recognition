@@ -1,6 +1,8 @@
 # Hand Gesture Recognition
 A Quantization-based position Weight Matrix (QuPWM) feature extraction method for mult-iclass classification is proposed to improve the interpretation of biomedical signals. This method is validated on surface Electromyogram (sEMG) signals recognition for eight different hand gestures.
 
+![](files/handgesture.png)
+
 ## Running
 2- Use the main file: main.m
 
